@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<meta html lang="en-us">
+<style>
+h1 {
+	font-family:arial;
+	font-size:2em;
+	color:#333;
+}
+#info {
+	position:absolute;
+	top: 10px;
+	left: 10px;
+}
+.hood { 
+	fill: #ddc;
+	stroke: #aaa;
+	stroke-linejoin: round;
+}
+.hood:hover {
+	fill: steelblue;
+}
+
+/*.chihoods5-label {
+	fill: #aaa;
+	fill-opacity: .75;
+	font-size: 20px;
+	font-weight: 300;
+	text-anchor: middle;
+} */
+
+</style>
+<body>
+<div id="info"?><h1 id="name"></h1></div>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script>
+//Based off the excellent Mike Bostocks tutorial here - http://bost.ocks.org/mike/map/ 
+
+var width = 960;
+var height = 1160;
+
+//define projection. Parameters shamelessly stolen from this NYT map of Chicago - http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0 
+var projection = d3.geo.albers()
+    .rotate([87.73, 0])
+    .center([0, 42.0433])
+    .scale(120000)
+    .translate([width / 2, 0]);		
+	
+var path = d3.geo.path()
+	.projection(projection);
+
+//create the root SVG element (renderer)
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+//Data from Chicago data portal. data.cityofchicago.org
+//Call d3.json to load the neighborhoods TOPOjson file
+
+d3.json("hood.json", function(error, hood) {
+  svg.selectAll(".chihoods5")
+      .data(topojson.feature(hood, hood.objects.chihoods5).features)
+      .enter()
+      .append("path")
+      .attr("class", function(d) { return "hood " + d.id; })
+      .attr("d", path) 
+      .on('mouseover', function(d){ 
+      	var name = d.properties.name;
+      	return document.getElementById('name').innerHTML=name; });
+});
+
+/*  
+  svg.selectALL(".chihoods5-label")
+	  .data(topojson.feature(hood, hood.objects.chihoods5).features)
+    .enter().append("text")
+      .attr("class", function(d) { return ".chihoods5-label " + d.id })
+      .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+      .attr("dy", ".35em")
+      .text(function(d) { return d.properties.name; }); 
+*/
+
+</script> 
+</body>
+</html>
